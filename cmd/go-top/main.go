@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/mariolazzari/go-top/internal/config"
+	"github.com/mariolazzari/go-top/internal/monitor"
 	"github.com/mariolazzari/go-top/internal/terminal"
 )
 
@@ -27,12 +29,24 @@ func main() {
 	// monitor := monitor,New()
 	//go monitor.Start(ctx, cfg.Interval)
 
+	monitor, err := monitor.New(time.Second)
+	if err != nil {
+		panic(err)
+	}
+
+	monitor.Start(ctx)
+
 	// Dispatch based on the selected operating mode
 	switch cfg.Mode {
 	case "text":
-		terminal.ClearScreen()
-		fmt.Printf("Starting go-top in text mode (interval: %v)...", cfg.Interval)
-		//client.RunTextClient(ctx, hub)
+		go func() {
+			for {
+				terminal.ClearScreen()
+				snapshot := monitor.Snapshot()
+				fmt.Printf("CPU usage: %.2f%%\n", snapshot.CPUPercent)
+				time.Sleep(time.Second)
+			}
+		}()
 		<-ctx.Done()
 
 	case "web":
@@ -44,5 +58,5 @@ func main() {
 		<-ctx.Done()
 	}
 
-	fmt.Println("\nExiting go-top gracefully. Goodbye!")
+	fmt.Println("\nExiting go-top gracefully. Ciao!")
 }
