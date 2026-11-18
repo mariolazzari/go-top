@@ -7,6 +7,7 @@ import (
 	"os/signal"
 
 	"github.com/mariolazzari/go-top/internal/config"
+	"github.com/mariolazzari/go-top/internal/terminal"
 )
 
 func main() {
@@ -29,6 +30,7 @@ func main() {
 	// Dispatch based on the selected operating mode
 	switch cfg.Mode {
 	case "text":
+		terminal.ClearScreen()
 		fmt.Printf("Starting go-top in text mode (interval: %v)...", cfg.Interval)
 		//client.RunTextClient(ctx, hub)
 		<-ctx.Done()
